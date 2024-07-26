@@ -1,0 +1,54 @@
+schemaVersion: 2.1.0
+metadata:
+  name: sample-python-devfile-with-aws-vault
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8@sha256:022cc606ec53638f7079a638f0810fee3a1717b42426bcfa31c2ba2e78520c54
+      memoryLimit: 3Gi
+      cpuLimit: 2
+      volumeMounts:
+        - name: pip-cache
+          path: /home/user/.cache/pip
+      endpoints:
+        - name: http-5000
+          targetPort: 5000
+          exposure: public
+          protocol: http
+        - name: debug-5678
+          targetPort: 5678
+          exposure: public
+          protocol: http
+      args: ["tail", "-f", "/dev/null"] #
+      installBefore:
+        - id: install-awscli
+          exec:
+            commandLine: |
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+              unzip awscliv2.zip && \
+              sudo ./aws/install
+        - id: install-vault
+          exec:
+            commandLine: |
+              curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && \
+              sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
+              sudo apt-get update && sudo apt-get install vault
+commands:
+  - id: install-dependencies
+    exec:
+      component: tools
+      commandLine: pip install -r requirements.txt
+      workingDir: /projects
+  - id: start-app
+    exec:
+      component: tools
+      commandLine: python app.py
+      workingDir: /projects
+  - id: run-tests
+    exec:
+      component: tools
+      commandLine: pytest
+      workingDir: /projects
+volumes:
+  - name: pip-cache
+    size: 1Gi
