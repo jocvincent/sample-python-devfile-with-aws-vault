@@ -6,7 +6,7 @@ components:
     container:
       image: registry.redhat.io/devspaces/udi-rhel8@sha256:022cc606ec53638f7079a638f0810fee3a1717b42426bcfa31c2ba2e78520c54
       memoryLimit: 3Gi
-      cpuLimit: 2
+      cpuLimit: "1000m"
       volumeMounts:
         - name: pip-cache
           path: /home/user/.cache/pip
@@ -49,6 +49,4 @@ commands:
       component: tools
       commandLine: pytest
       workingDir: /projects
-volumes:
-  - name: pip-cache
-    size: 1Gi
+
