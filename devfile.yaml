@@ -20,6 +20,9 @@ components:
           exposure: public
           protocol: http
       args: ["tail", "-f", "/dev/null"] #
+  - name: pip-cache
+    volume:
+      size: 1Gi
 commands:
   - id: install-awscli
     exec:
